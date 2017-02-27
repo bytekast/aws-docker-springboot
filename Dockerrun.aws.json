@@ -1,0 +1,12 @@
+{
+    "AWSEBDockerrunVersion": "1",
+    "Image": {
+        "Name": "295279419433.dkr.ecr.us-east-1.amazonaws.com/aws-docker-springboot:0.0.1",
+        "Update": "true"
+    },
+    "Ports": [
+        {
+            "ContainerPort": "8080"
+        }
+    ]
+}
