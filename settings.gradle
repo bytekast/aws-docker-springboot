@@ -1,0 +1,17 @@
+pluginRepositories {
+  gradlePluginPortal()
+  maven {
+    url "s3://bytekast-maven/releases"
+    credentials(AwsCredentials) {
+      accessKey "$AWS_ACCESS_KEY"
+      secretKey "$AWS_SECRET_KEY"
+    }
+  }
+  maven {
+    url "s3://bytekast-maven/snapshots"
+    credentials(AwsCredentials) {
+      accessKey "$AWS_ACCESS_KEY"
+      secretKey "$AWS_SECRET_KEY"
+    }
+  }
+}

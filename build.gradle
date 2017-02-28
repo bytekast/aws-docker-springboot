@@ -1,22 +1,8 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath('org.springframework.boot:spring-boot-gradle-plugin:1.5.1.RELEASE')
-    classpath('se.transmode.gradle:gradle-docker:1.2')
-  }
-}
-
 plugins {
   id 'java'
   id 'idea'
-  id 'maven-publish'
-  id 'net.researchgate.release' version '2.5.0'
+  id 'elastic-springboot' version '0.0.4'
 }
-
-apply plugin: 'docker'
-apply plugin: 'org.springframework.boot'
 
 repositories {
   mavenCentral()
@@ -28,9 +14,7 @@ jar {
 }
 
 dependencies {
-  compile 'org.springframework.boot:spring-boot-starter-web:1.5.1.RELEASE'
-  compile 'net.logstash.logback:logstash-logback-encoder:4.7'
-  testCompile 'org.springframework.boot:spring-boot-starter-test'
+
 }
 
 docker {
@@ -38,62 +22,7 @@ docker {
   maintainer 'Rowell Belen "developer@bytekast.com"'
 }
 
-task buildDocker(type: Docker, dependsOn: build) {
-  push = false
-  applicationName = jar.baseName
-  runCommand "apt-get update"
-  workingDir '/app'
-  addFile jar.archivePath, "/app/${jar.archiveName}"
-  exposePort 8080
-  defaultCommand(['java', '-jar', jar.archiveName])
-}
-
-task pushDocker << {
-  def localTag = "${project.group}/${project.name}:${version}"
-  def deployTag = "${AWS_DOCKER_REPO}/${project.name}:${version}"
-  exec {
-    commandLine('docker', 'tag', localTag, deployTag)
-  }
-  exec {
-    commandLine('docker', 'push', deployTag)
-  }
-}
-
-task prepareDeploy << {
-  def deployTag = "${AWS_DOCKER_REPO}/${project.name}:${version}"
-  def json = [
-      AWSEBDockerrunVersion: '1',
-      Image                : [
-          Name  : "${deployTag}",
-          Update: 'true'
-      ],
-      'Ports'              : [
-          [ContainerPort: '8080']
-      ]
-  ]
-  def file = File.newInstance(projectDir, 'Dockerrun.aws.json')
-  file.text = groovy.json.JsonBuilder.newInstance(json).toPrettyString()
-}
-
-pushDocker.dependsOn buildDocker
-pushDocker.finalizedBy(publish)
-afterReleaseBuild.dependsOn pushDocker
-afterReleaseBuild.finalizedBy(prepareDeploy)
-
 publishing {
-  repositories {
-    maven {
-      if (project.version.endsWith('-SNAPSHOT')) {
-        url AWS_MAVEN_SNAPSHOTS
-      } else {
-        url AWS_MAVEN_RELEASES
-      }
-      credentials(AwsCredentials) {
-        accessKey AWS_ACCESS_KEY
-        secretKey AWS_SECRET_KEY
-      }
-    }
-  }
 
   publications {
     mavenJava(MavenPublication) {
