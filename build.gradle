@@ -1,36 +1,4 @@
 plugins {
-  id 'java'
   id 'idea'
-  id 'elastic-springboot' version '0.0.4'
+  id 'elastic-springboot' version '0.0.1'
 }
-
-repositories {
-  mavenCentral()
-}
-
-jar {
-  baseName = project.name
-  version = "${version}"
-}
-
-dependencies {
-
-}
-
-docker {
-  baseImage "java:8"
-  maintainer 'Rowell Belen "developer@bytekast.com"'
-}
-
-publishing {
-
-  publications {
-    mavenJava(MavenPublication) {
-      version = project.version
-      artifactId = project.name
-      groupId = project.group
-      artifact("$buildDir/libs/${project.name}-${project.version}.jar")
-    }
-  }
-}
-
